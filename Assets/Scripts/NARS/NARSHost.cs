@@ -42,7 +42,7 @@ public class NARSHost : MonoBehaviour
     public void LaunchONA()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo(@"cmd.exe");
-        startInfo.WorkingDirectory = @"C:\Users\hahm.19\UnityGames\NARS-Pong\Assets\NARS";
+        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
@@ -64,7 +64,7 @@ public class NARSHost : MonoBehaviour
     public void LaunchNARS()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
-        startInfo.WorkingDirectory = @"C:\Users\hahm.19\UnityGames\NARS-Pong\Assets\NARS";
+        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
