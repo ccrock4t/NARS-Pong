@@ -1,5 +1,0 @@
-Misses:1 Blocks:0 Ratio:0 Time: 3.14
-Misses:2 Blocks:0 Ratio:0 Time: 6.02
-Misses:3 Blocks:0 Ratio:0 Time: 7.68
-Misses:4 Blocks:0 Ratio:0 Time: 10.86
-Misses:4 Blocks:1 Ratio:0.2 Time: 12.6
