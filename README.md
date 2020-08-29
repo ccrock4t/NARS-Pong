@@ -5,5 +5,6 @@ REQUIRES Cygwin install and add "C:\cygwin64\bin" (your Cygwin installation bin 
 
 REQUIRES Java install and add your javapath to your Windows System Path variable.
 
-NARS Source Code (Java): https://github.com/opennars/opennars \n
+NARS Source Code (Java): https://github.com/opennars/opennars
+
 ONA Source Code (C): https://github.com/opennars/OpenNARS-for-Applications
