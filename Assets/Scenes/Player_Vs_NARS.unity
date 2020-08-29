@@ -171,6 +171,7 @@ GameObject:
   - component: {fileID: 55597007}
   - component: {fileID: 55597006}
   - component: {fileID: 55597005}
+  - component: {fileID: 55597008}
   m_Layer: 5
   m_Name: ResetBtn
   m_TagString: Untagged
@@ -253,6 +254,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 55597008}
+        m_TargetAssemblyTypeName: ResetBallButton, Assembly-CSharp
+        m_MethodName: DisableFor1Sec
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &55597006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,6 +304,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55597003}
   m_CullTransparentMesh: 0
+--- !u!114 &55597008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55597003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c9955bbe9c71b34b804ed284e697bf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &76494290
 GameObject:
   m_ObjectHideFlags: 0
@@ -732,7 +757,7 @@ GameObject:
   - component: {fileID: 535148409}
   - component: {fileID: 535148411}
   m_Layer: 0
-  m_Name: NARS
+  m_Name: NARSHost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -750,7 +775,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e74be1e9c07000a47b7c9bc022f506ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 0
   UIOutput: {fileID: 781468557}
+  babblesRemaining: 0
 --- !u!4 &535148410
 Transform:
   m_ObjectHideFlags: 0
@@ -780,9 +807,6 @@ MonoBehaviour:
   ball: {fileID: 1860731071}
   paddle: {fileID: 1798791120}
   width: 0
-  leftSensor: {fileID: 76494291}
-  centerSensor: {fileID: 289788622}
-  rightSensor: {fileID: 1430422697}
   radialLeftSensor: {fileID: 924090215}
   radialCenterLeftSensor: {fileID: 921774465}
   radialCenterSensor: {fileID: 1239406449}
@@ -999,7 +1023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0.8427868, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1019,7 +1043,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'ONA Operation:
+  m_Text: 'NARS Operation:
 
     NONE'
 --- !u!222 &781468556

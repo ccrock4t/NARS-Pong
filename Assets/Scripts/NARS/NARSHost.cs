@@ -9,35 +9,121 @@ using UnityEngine.UI;
 
 public class NARSHost : MonoBehaviour
 {
-    private static NARSHost _instance;
+    public enum NARSType : int
+    {
+        NARS, ONA
+    }
+
+    public NARSType type;
+    NARSSensorimotor _sensorimotor;
     Process process = null;
     StreamWriter messageStream;
 
+    //UI output text
     public OperationOutputGUI UIOutput;
-    string lastOperation = "";
+    string lastOperationTextForUI = "";
     bool operationUpdated = false;
 
+    //Babbling
+    float babbleTimer = 0;
+    [SerializeField] int babblesRemaining;
+  
     private void Start()
     {
-        _instance = this;
-        //LaunchNARS();
-        LaunchONA();
+        Application.targetFrameRate = 60;
+        babblesRemaining = 90;
+        switch (type)
+        {
+            case NARSType.NARS:
+                LaunchNARS();
+                break;
+            case NARSType.ONA:
+                LaunchONA();
+                break;
+            default:
+                break;
+        }
+
+        _sensorimotor = GetComponent<NARSSensorimotor>();
+        _sensorimotor.SetNARSHost(this);
+    }
+
+    private NARSSensorimotor GetSensorimotor()
+    {
+        return _sensorimotor;
     }
 
     private void Update()
     {
         if (operationUpdated)
         {
-            UIOutput.SetOutputText(lastOperation);
+            string text = "";
+            switch (type)
+            {
+                case NARSType.NARS:
+                    text = "NARS Operation:\n";
+                    break;
+                case NARSType.ONA:
+                    text = "ONA Operation:\n";
+                    break;
+                default:
+                    break;
+            }
+            text += lastOperationTextForUI;
+            UIOutput.SetOutputText(text);
             operationUpdated = false;
+        }
+
+        if (type == NARSType.NARS)
+        {
+            babbleTimer -= Time.deltaTime;
+            if (babblesRemaining > 0 && babbleTimer <= 0f)
+            {
+                Babble();
+                babbleTimer = 1.0f;
+                babblesRemaining--;
+            }
         }
     }
 
-    public static NARSHost GetInstance()
+    void Babble()
     {
-        return _instance;
-    }
+        int randInt = Random.Range(1, 4);
+        string input = "";
 
+        if (randInt == 1)
+        {
+            GetSensorimotor().MoveRight();
+
+            lastOperationTextForUI = "(babble) ^right";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> ^right>. :|:";
+        }
+        else if (randInt == 2)
+        {
+            GetSensorimotor().MoveLeft();
+
+            lastOperationTextForUI = "(babble) ^left";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> ^left>. :|:";
+        }
+        else if (randInt == 3)
+        {
+            GetSensorimotor().DontMove();
+
+            lastOperationTextForUI = "(babble) ^deactivate";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> ^deactivate>. :|:";
+        }
+
+        if (input != "")
+        {
+            this.AddInput(input);
+        }
+    }
 
     public void LaunchONA()
     {
@@ -46,6 +132,7 @@ public class NARSHost : MonoBehaviour
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
 
         process = new Process();
         process.StartInfo = startInfo;
@@ -53,10 +140,12 @@ public class NARSHost : MonoBehaviour
         process.OutputDataReceived += new DataReceivedEventHandler(ONAOutputReceived);
         process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
         process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
         process.StandardInput.WriteLine("NAR shell");
         process.StandardInput.Flush();
 
-        process.BeginOutputReadLine();
         messageStream = process.StandardInput;
         AddInput("*volume=0");
     }
@@ -68,6 +157,7 @@ public class NARSHost : MonoBehaviour
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
 
         process = new Process();
         process.StartInfo = startInfo;
@@ -75,10 +165,12 @@ public class NARSHost : MonoBehaviour
         process.OutputDataReceived += new DataReceivedEventHandler(NARSOutputReceived);
         process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
         process.Start();
-        process.StandardInput.WriteLine("java -jar opennars.jar");
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        process.StandardInput.WriteLine("java -Xmx1024m -jar opennars.jar");
         process.StandardInput.Flush();
 
-        process.BeginOutputReadLine();
         messageStream = process.StandardInput;
         AddInput("*volume=0");
     }
@@ -90,42 +182,38 @@ public class NARSHost : MonoBehaviour
 
     public void AddInput(string message)
     {
-        UnityEngine.Debug.Log("SENDING INPUT: " + message);
+        //UnityEngine.Debug.Log("SENDING INPUT: " + message);
         messageStream.WriteLine(message);
     }
     void NARSOutputReceived(object sender, DataReceivedEventArgs eventArgs)
     {
         UnityEngine.Debug.Log(eventArgs.Data);
-        if (eventArgs.Data.Contains("EXE")) //operation executed
+        if (eventArgs.Data.Contains("EXE:")) //operation executed
         {
-            UnityEngine.Debug.Log("RECEIVED OUTPUT: " + eventArgs.Data);
-            string operation = eventArgs.Data.Substring(eventArgs.Data.IndexOf("^"), eventArgs.Data.IndexOf("("));
+            //UnityEngine.Debug.Log("RECEIVED OUTPUT: " + eventArgs.Data);
+            int length = eventArgs.Data.IndexOf("(") - eventArgs.Data.IndexOf("^");
+            string operation = eventArgs.Data.Substring(eventArgs.Data.IndexOf("^"), length);
+            //UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
 
             if (operation == "^left")
             {
-                UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                GetSensorimotor().MoveLeft();
 
-                NARSSensorimotor.GetInstance().MoveLeft();
-
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
             else if (operation == "^right")
             {
-                UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                GetSensorimotor().MoveRight();
 
-                NARSSensorimotor.GetInstance().MoveRight();
-
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
             else if (operation == "^deactivate")
             {
-                UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                GetSensorimotor().DontMove();
 
-                NARSSensorimotor.GetInstance().DontMove();
-
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
         }
@@ -141,29 +229,29 @@ public class NARSHost : MonoBehaviour
           
             if (operation == "^left")
             {
-               // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
 
-                NARSSensorimotor.GetInstance().MoveLeft();
+                GetSensorimotor().MoveLeft();
 
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
             else if(operation == "^right")
             {
-               // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
 
-                NARSSensorimotor.GetInstance().MoveRight();
+                GetSensorimotor().MoveRight();
 
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
             else if (operation == "^deactivate")
             {
-               // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
 
-                NARSSensorimotor.GetInstance().DontMove();
+                GetSensorimotor().DontMove();
 
-                lastOperation = operation;
+                lastOperationTextForUI = operation;
                 operationUpdated = true;
             }
         }

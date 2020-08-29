@@ -8,6 +8,8 @@ public class PongBall : MonoBehaviour
     Rigidbody rb;
     Vector3 origin;
 
+    float resetTimer = 0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -17,13 +19,27 @@ public class PongBall : MonoBehaviour
     }
 
     // Update is called once per frame
-
-
+    private void Update()
+    {
+        resetTimer -= Time.deltaTime;
+        if (Mathf.Abs(rb.velocity.x) < 0.1f || Mathf.Abs(rb.velocity.z) < 0.1f)
+        {
+            if(resetTimer <= 0)
+            {
+                ResetPosition();
+                resetTimer = 3.0f;
+            }
+        }
+        else
+        {
+            resetTimer = 3.0f;
+        }
+    }
     void NudgeX()
     {
         int randInt = Random.Range(1, 3);
         int sign = randInt == 1 ? -1 : 1;
-        rb.AddForce(sign*new Vector3(Random.Range(0.4f,0.6f), 0f, 0f), ForceMode.Impulse);
+        rb.AddForce(sign*new Vector3(0.4f, 0f, 0f), ForceMode.Impulse);
     }
 
     void NudgeZ()
@@ -37,7 +53,13 @@ public class PongBall : MonoBehaviour
     {
         gameObject.transform.position = origin;
         rb.velocity = new Vector3(0, 0, 0);
-        Invoke("NudgeX", 1f);
-        Invoke("NudgeZ", 1f);
+        if (!IsInvoking("NudgeX"))
+        {
+            Invoke("NudgeX", 1f);
+        }
+        if (!IsInvoking("NudgeZ"))
+        {
+            Invoke("NudgeZ", 1f);
+        }
     }
 }

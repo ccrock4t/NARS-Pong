@@ -17,8 +17,23 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("NARS_Pong");
     }
 
+    public void LoadONAPong()
+    {
+        SceneManager.LoadScene("ONA_Pong");
+    }
+
     public void LoadPlayerVsNARS()
     {
         SceneManager.LoadScene("Player_Vs_NARS");
+    }
+
+    public void LoadPlayerVsONA()
+    {
+        SceneManager.LoadScene("Player_Vs_ONA");
+    }
+
+    public void LoadNARSVsONA()
+    {
+        SceneManager.LoadScene("NARS_Vs_ONA");
     }
 }

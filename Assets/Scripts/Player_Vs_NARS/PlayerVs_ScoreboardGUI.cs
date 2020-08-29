@@ -12,13 +12,13 @@ public class PlayerVs_ScoreboardGUI : MonoBehaviour
         playerPointsText.text = "Player: " + score;
     }
 
-    public void UpdateNARSPointsText(int score)
+    public void UpdateNARSPointsText(string text)
     {
-        NARSPointsText.text = "NARS: " + score;
+        NARSPointsText.text = text;
     }
 
-    public void UpdateNARSBlocksText(int score)
+    public void UpdateNARSBlocksText(string text)
     {
-        NARSBlocksText.text = "NARS\nBlocks: " + score;
+        NARSBlocksText.text = text;
     }
 }

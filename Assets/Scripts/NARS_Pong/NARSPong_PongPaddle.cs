@@ -7,6 +7,8 @@ public class NARSPong_PongPaddle : MonoBehaviour
     public static string TAG = "Paddle";
     public bool goLeft, goRight;
 
+    protected NARSSensorimotor _sensorimotor;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +32,15 @@ public class NARSPong_PongPaddle : MonoBehaviour
             GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
     }
+    public void SetSensorimotor(NARSSensorimotor sensorimotor)
+    {
+        _sensorimotor = sensorimotor;
+    }
+
+    public NARSSensorimotor GetSensorimotor()
+    {
+        return _sensorimotor;
+    }
 
     public void MoveLeft()
     {
@@ -46,7 +57,11 @@ public class NARSPong_PongPaddle : MonoBehaviour
         if (collision.collider.tag == PongBall.TAG)
         {
             NARSPong_GameManager.GetInstance().AddBlock();
-            NARSSensorimotor.GetInstance().Praise();
+            if(GetSensorimotor() != null)
+            {
+                GetSensorimotor().Praise();
+            }
+          
         }
     }
 

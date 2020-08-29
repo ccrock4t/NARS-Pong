@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Player_Vs_NARS.unity
     guid: 6b108a7241516dc459a4f4439cfc4f00
+  - enabled: 1
+    path: Assets/Scenes/NARS_Vs_ONA.unity
+    guid: 8b35a186a255b2e44946ff2e8286e88e
+  - enabled: 1
+    path: Assets/Scenes/ONA_Pong.unity
+    guid: 66bda855c8a039e4b8330b842e320bf3
+  - enabled: 1
+    path: Assets/Scenes/Player_Vs_ONA.unity
+    guid: a011f4cd21b4cd8409aecdfc5ca46382
   m_configObjects: {}

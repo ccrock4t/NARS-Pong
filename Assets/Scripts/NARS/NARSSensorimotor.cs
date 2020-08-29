@@ -4,41 +4,53 @@ using UnityEngine;
 
 public class NARSSensorimotor : MonoBehaviour
 {
-    public static NARSSensorimotor _instance;
+    private NARSHost _host;
     public PongBall ball;
     public NARSPong_PongPaddle paddle;
-
     public float width;
-    bool isHittingLeftWall, isHittingRightWall;
-    int k = 0;
 
-    public MeshRenderer leftSensor, centerSensor, rightSensor;
+    MeshRenderer leftSensor, centerSensor, rightSensor;
     public MeshRenderer radialLeftSensor, radialCenterLeftSensor, radialCenterSensor, radialCenterRightSensor, radialRightSensor;
     public Color offColor = Color.black, oncolor = Color.yellow;
 
-    float timer = 0, goalTimer = 0;
+    float TIMER_DURATION = 0.2f;
+    float timer = 0, inferenceTimer = 0, goalTimer = 0;
     string lastHorizontalRelativePositionInput = "", lastRadialInput = "", lastDistanceInput = "", lastHorizontalVelocityInput = "", lastVerticalVelocityInput = "", lastWallInput = "", lastDistanceVelocity = "", lastVerticalPositionInput = "";
+    bool isHittingLeftWall, isHittingRightWall;
 
     // Start is called before the first frame update
     void Start()
     {
-        _instance = this;
         width = paddle.GetComponent<MeshRenderer>().bounds.size.x;
+        paddle.SetSensorimotor(this);
+
+        leftSensor = paddle.transform.Find("HorizontalSensor/Left").GetComponent<MeshRenderer>();
+        centerSensor = paddle.transform.Find("HorizontalSensor/Center").GetComponent<MeshRenderer>();
+        rightSensor = paddle.transform.Find("HorizontalSensor/Right").GetComponent<MeshRenderer>();
+
+        timer = TIMER_DURATION;
+        inferenceTimer = TIMER_DURATION / 2f;
     }
 
-    public static NARSSensorimotor GetInstance()
+    public void SetNARSHost(NARSHost host)
     {
-        return _instance;
+        _host = host;
+    }
+
+    public NARSHost GetNARSHost()
+    {
+        return _host;
     }
 
     // Update is called once per frame
     void Update()
     {
         timer -= Time.deltaTime;
+        inferenceTimer -= Time.deltaTime;
+        goalTimer -= Time.deltaTime;
 
         if (timer <= 0f)
         {
-            CalculateAndInputHorizontalRelativePositionSensorData();
             //Various test sensors
             //CalculateAndInputDistanceSensorData();
             //CalculateAndInputRadialSensorData();
@@ -46,14 +58,30 @@ public class NARSSensorimotor : MonoBehaviour
             //CalculateAndInputVerticalVelocitySensorData();
             //CalculateAndInputVerticalPositionSensorData();
             //DetectWalls();
-            RemindGoal();
-            NARSHost.GetInstance().AddInferenceCycles(3);
 
-            timer = 0.25f;
+            CalculateAndInputHorizontalRelativePositionSensorData();
+            RemindGoal();
+            timer = TIMER_DURATION;
         }
-        
+
+        if (inferenceTimer <= 0f)
+        {
+            if (GetNARSHost().type == NARSHost.NARSType.ONA)
+            {
+                GetNARSHost().AddInferenceCycles(2);
+            }
+
+            if (GetNARSHost().type == NARSHost.NARSType.NARS)
+            {
+                GetNARSHost().AddInferenceCycles(10);
+            }
+            inferenceTimer = TIMER_DURATION;
+        }
+
+
     }
 
+#region test sensors
     void CalculateAndInputRadialSensorData()
     {
         string input = "";
@@ -91,7 +119,7 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")// && input != lastRadialInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastRadialInput = input;
         }
     }
@@ -166,7 +194,7 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")// && input != lastHorizontalVelocityInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastHorizontalVelocityInput = input;
         }
     }
@@ -189,7 +217,7 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "") //&& input != lastVerticalVelocityInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastVerticalVelocityInput = input;
         }
     }
@@ -220,45 +248,8 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")// && input != lastDistanceInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastDistanceInput = input;
-        }
-    }
-
-    void CalculateAndInputHorizontalRelativePositionSensorData()
-    {
-        string input = "";
-        //Need to move
-        Vector3 ballDirection = ball.transform.position - paddle.transform.position;
-
-        bool ballIsLeft = Vector3.Dot(paddle.transform.right, ballDirection) < 0 && Mathf.Abs(ball.transform.position.x - paddle.transform.position.x) > width / 2f;
-        bool ballIsRight = Vector3.Dot(paddle.transform.right, ballDirection) > 0 && Mathf.Abs(ball.transform.position.x - paddle.transform.position.x) > width / 2f;
-        bool ballIsCenter = !ballIsLeft && !ballIsRight;
-
-        if (ballIsLeft)
-        {
-            input = "<{ball_to_left} --> [on]>. :|:";
-            SetSensor("left");
-        }
-        else if (ballIsRight)
-        {
-            input = "<{ball_to_right} --> [on]>. :|:";
-            SetSensor("right");
-        }
-        else if (ballIsCenter)
-        {
-            input = "<{ball_to_center} --> [on]>. :|:";
-            SetSensor("center");
-        }
-        else
-        {
-            SetSensor("off");
-        }
-
-        if (input != "")//&& input != lastHorizontalRelativePositionInput)
-        {
-            NARSHost.GetInstance().AddInput(input);
-            lastHorizontalRelativePositionInput = input;
         }
     }
 
@@ -292,7 +283,7 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
         }
     }
 
@@ -326,7 +317,7 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")//&& input != lastVerticalPositionInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastVerticalPositionInput = input;
         }
     }
@@ -351,8 +342,45 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (input != "")//&& input != lastWallInput)
         {
-            NARSHost.GetInstance().AddInput(input);
+            GetNARSHost().AddInput(input);
             lastWallInput = input;
+        }
+    }
+
+    #endregion
+    void CalculateAndInputHorizontalRelativePositionSensorData()
+    {
+        string input = "";
+        //Need to move
+        Vector3 ballDirection = ball.transform.position - paddle.transform.position;
+        bool ballIsLeft = Vector3.Dot(paddle.transform.right, ballDirection) < 0 && Mathf.Abs(ball.transform.position.x - paddle.transform.position.x) > width / 2f;
+        bool ballIsRight = Vector3.Dot(paddle.transform.right, ballDirection) > 0 && Mathf.Abs(ball.transform.position.x - paddle.transform.position.x) > width / 2f;
+        bool ballIsCenter = !ballIsLeft && !ballIsRight;
+
+        if (ballIsLeft)
+        {
+            input = "<{ball_to_left} --> [on]>. :|:";
+            SetSensor("left");
+        }
+        else if (ballIsRight)
+        {
+            input = "<{ball_to_right} --> [on]>. :|:";
+            SetSensor("right");
+        }
+        else if (ballIsCenter)
+        {
+            input = "<{ball_to_center} --> [on]>. :|:";
+            SetSensor("center");
+        }
+        else
+        {
+            SetSensor("off");
+        }
+
+        if (input != "")// && input != lastHorizontalRelativePositionInput)
+        {
+            GetNARSHost().AddInput(input);
+            lastHorizontalRelativePositionInput = input;
         }
     }
 
@@ -404,7 +432,7 @@ public class NARSSensorimotor : MonoBehaviour
     public void RemindGoal()
     {
         //NARSHost.GetInstance().AddInput("(--,<{SELF} --> [bad]>)! :|:");
-        NARSHost.GetInstance().AddInput("<{SELF} --> [good]>! :|:");
+        GetNARSHost().AddInput("<{SELF} --> [good]>! :|:");
     }
 
     public void Punish()
@@ -417,7 +445,7 @@ public class NARSSensorimotor : MonoBehaviour
 
     public void Praise()
     {
-        Debug.Log("GOOD NARS");
-        NARSHost.GetInstance().AddInput("<{SELF} --> [good]>. :|:");
+        Debug.Log("GOOD " + GetNARSHost().type.ToString());
+        GetNARSHost().AddInput("<{SELF} --> [good]>. :|:");
     }
 }

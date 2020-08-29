@@ -22,7 +22,6 @@ public class NARSPong_Goal : MonoBehaviour
         if(other.tag == PongBall.TAG)
         {
             NARSPong_GameManager.GetInstance().AddMiss();
-            NARSSensorimotor.GetInstance().Punish();
             other.GetComponent<PongBall>().ResetPosition();
         }
     }

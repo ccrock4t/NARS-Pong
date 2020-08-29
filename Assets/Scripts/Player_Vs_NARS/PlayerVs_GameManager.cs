@@ -38,20 +38,20 @@ public class PlayerVs_GameManager : MonoBehaviour
         return NARSPoints;
     }
 
-    public void AddNARSPoint()
+    public void AddNARSPoint(string NARSTypeName)
     {
         NARSPoints++;
-        GetComponent<PlayerVs_ScoreboardGUI>().UpdateNARSPointsText(NARSPoints);
+        GetComponent<PlayerVs_ScoreboardGUI>().UpdateNARSPointsText(NARSTypeName + ": " + NARSPoints);
     }
 
     public int GetNARSBlocks()
     {
-        return NARSPoints;
+        return NARSBlocks;
     }
 
-    public void AddNARSBlock()
+    public void AddNARSBlock(string NARSTypeName)
     {
         NARSBlocks++;
-        GetComponent<PlayerVs_ScoreboardGUI>().UpdateNARSBlocksText(NARSBlocks);
+        GetComponent<PlayerVs_ScoreboardGUI>().UpdateNARSBlocksText(NARSTypeName + "\nBlocks: " + NARSBlocks);
     }
 }

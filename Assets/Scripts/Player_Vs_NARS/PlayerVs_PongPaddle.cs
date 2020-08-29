@@ -42,22 +42,16 @@ public class PlayerVs_PongPaddle : NARSPong_PongPaddle
         }
     }
 
-    public void MoveLeft()
-    {
-        GetComponent<Rigidbody>().velocity = -20 * transform.right;
-    }
-
-    public void MoveRight()
-    {
-        GetComponent<Rigidbody>().velocity = 20 * transform.right;
-    }
-
     protected override void OnCollisionEnter(Collision collision)
     {
         if (!isPlayer && collision.collider.tag == PongBall.TAG)
         {
-            PlayerVs_GameManager.GetInstance().AddNARSBlock();
-            NARSSensorimotor.GetInstance().Praise();
+            PlayerVs_GameManager.GetInstance().AddNARSBlock(GetSensorimotor().GetNARSHost().type.ToString());
+
+            if (GetSensorimotor() != null)
+            {
+                GetSensorimotor().Praise();
+            }
         }
     }
 }
