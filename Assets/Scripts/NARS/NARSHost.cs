@@ -11,7 +11,7 @@ public class NARSHost : MonoBehaviour
 {
     public enum NARSType : int
     {
-        NARS, ONA
+        NARS, ONA, Python
     }
 
     public NARSType type;
@@ -40,6 +40,10 @@ public class NARSHost : MonoBehaviour
             case NARSType.ONA:
                 LaunchONA();
                 break;
+            case NARSType.Python:
+                LaunchPython();
+                babblesRemaining = 30;
+                break;
             default:
                 break;
         }
@@ -48,7 +52,7 @@ public class NARSHost : MonoBehaviour
         _sensorimotor.SetNARSHost(this);
     }
 
-    private NARSSensorimotor GetSensorimotor()
+    public NARSSensorimotor GetSensorimotor()
     {
         return _sensorimotor;
     }
@@ -66,6 +70,9 @@ public class NARSHost : MonoBehaviour
                 case NARSType.ONA:
                     text = "ONA Operation:\n";
                     break;
+                case NARSType.Python:
+                    text = "Python Operation:\n";
+                    break;
                 default:
                     break;
             }
@@ -74,21 +81,70 @@ public class NARSHost : MonoBehaviour
             operationUpdated = false;
         }
 
-        if (type == NARSType.NARS)
+
+        babbleTimer -= Time.deltaTime;
+        if (babblesRemaining > 0 && babbleTimer <= 0f)
         {
-            babbleTimer -= Time.deltaTime;
-            if (babblesRemaining > 0 && babbleTimer <= 0f)
+            switch (type)
             {
-                Babble();
-                babbleTimer = 1.0f;
-                babblesRemaining--;
+                case NARSType.NARS:
+                    NARSBabble();
+                    break;
+                case NARSType.Python:
+                    PythonBabble();
+                    break;
+                default:
+                    break;
             }
+                 
+            babbleTimer = 1.00f;
+            babblesRemaining--;
         }
+        
     }
 
-    void Babble()
+    void PythonBabble()
     {
         int randInt = Random.Range(1, 4);
+        string input = "";
+
+        if (randInt == 1)
+        {
+            GetSensorimotor().MoveRight();
+
+            lastOperationTextForUI = "(babble) ^right";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> right>! :|:";
+        }
+        else if (randInt == 2)
+        {
+            GetSensorimotor().MoveLeft();
+
+            lastOperationTextForUI = "(babble) left";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> left>. :|:";
+        }
+        else if (randInt == 3)
+        {
+            GetSensorimotor().DontMove();
+
+            lastOperationTextForUI = "(babble) deactivate";
+            operationUpdated = true;
+
+            input = "<(*,{SELF}) --> deactivate>. :|:";
+        }
+
+        if (input != "")
+        {
+            this.AddInput(input);
+        }
+
+    }
+    void NARSBabble()
+    {
+        int randInt = Random.Range(1, 4); 
         string input = "";
 
         if (randInt == 1)
@@ -109,7 +165,7 @@ public class NARSHost : MonoBehaviour
 
             input = "<(*,{SELF}) --> ^left>. :|:";
         }
-        else if (randInt == 3)
+        else if (randInt == 3) 
         {
             GetSensorimotor().DontMove();
 
@@ -127,8 +183,9 @@ public class NARSHost : MonoBehaviour
 
     public void LaunchONA()
     {
-        ProcessStartInfo startInfo = new ProcessStartInfo(@"cmd.exe");
+        ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
         startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
+        UnityEngine.Debug.Log(startInfo.WorkingDirectory);
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
@@ -175,6 +232,30 @@ public class NARSHost : MonoBehaviour
         AddInput("*volume=0");
     }
 
+    public void LaunchPython()
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
+        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
+        startInfo.UseShellExecute = false;
+        startInfo.RedirectStandardInput = true;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
+
+        process = new Process();
+        process.StartInfo = startInfo;
+        process.EnableRaisingEvents = true;
+        process.OutputDataReceived += new DataReceivedEventHandler(PythonOutputReceived);
+        process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        messageStream = process.StandardInput;
+        process.StandardInput.WriteLine("main.exe");
+
+        process.StandardInput.Flush();
+    }
+
     public void AddInferenceCycles(int cycles)
     {
         AddInput("" + cycles);
@@ -182,7 +263,17 @@ public class NARSHost : MonoBehaviour
 
     public void AddInput(string message)
     {
-        //UnityEngine.Debug.Log("SENDING INPUT: " + message);
+        
+        if(type == NARSType.Python)
+        {
+            int index = message.IndexOf("<");
+            int lastindex = message.LastIndexOf(">");
+            if (index != -1 && lastindex != -1){
+                message = message.Substring(0, index) + "(" + message.Substring(index + 1, lastindex - (index + 1)) + ")" + message.Substring(lastindex + 1);
+            }
+            
+        }
+        UnityEngine.Debug.Log("SENDING INPUT: " + message);
         messageStream.WriteLine(message);
     }
     void NARSOutputReceived(object sender, DataReceivedEventArgs eventArgs)
@@ -222,7 +313,7 @@ public class NARSHost : MonoBehaviour
 
     void ONAOutputReceived(object sender, DataReceivedEventArgs eventArgs)
     {
-        //UnityEngine.Debug.Log(eventArgs.Data);
+        UnityEngine.Debug.Log(eventArgs.Data);
         if (eventArgs.Data.Contains("executed with args")) //operation executed
         {
             string operation = eventArgs.Data.Split(' ')[0];
@@ -256,6 +347,44 @@ public class NARSHost : MonoBehaviour
             }
         }
         
+    }
+
+    void PythonOutputReceived(object sender, DataReceivedEventArgs eventArgs)
+    {
+        UnityEngine.Debug.Log(eventArgs.Data);
+        if (eventArgs.Data.Contains("EXE:")) //operation executed
+        {
+            string operation = eventArgs.Data.Split(' ')[1];
+            UnityEngine.Debug.Log("RECEIVED OPERATION: " + operation);
+            if (operation == "^left")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().MoveLeft();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+            else if (operation == "^right")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().MoveRight();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+            else if (operation == "^deactivate")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().DontMove();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+        }
+
     }
 
     void ErrorReceived(object sender, DataReceivedEventArgs eventArgs)

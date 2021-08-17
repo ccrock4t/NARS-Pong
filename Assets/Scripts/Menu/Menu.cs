@@ -22,6 +22,11 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("ONA_Pong");
     }
 
+    public void LoadPythonPong()
+    {
+        SceneManager.LoadScene("Python_Pong");
+    }
+
     public void LoadPlayerVsNARS()
     {
         SceneManager.LoadScene("Player_Vs_NARS");
@@ -32,8 +37,25 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("Player_Vs_ONA");
     }
 
+
+    public void LoadPlayerVsPython()
+    {
+        SceneManager.LoadScene("Player_Vs_Python");
+    }
+
+
     public void LoadNARSVsONA()
     {
         SceneManager.LoadScene("NARS_Vs_ONA");
+    }
+
+    public void LoadNARSVsPython()
+    {
+        SceneManager.LoadScene("NARS_Vs_Python");
+    }
+
+    public void LoadONAVsPython()
+    {
+        SceneManager.LoadScene("ONA_Vs_Python");
     }
 }

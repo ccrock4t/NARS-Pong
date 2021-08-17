@@ -11,10 +11,10 @@ public class NARSSensorimotor : MonoBehaviour
 
     MeshRenderer leftSensor, centerSensor, rightSensor;
     public MeshRenderer radialLeftSensor, radialCenterLeftSensor, radialCenterSensor, radialCenterRightSensor, radialRightSensor;
-    public Color offColor = Color.black, oncolor = Color.yellow;
+    public Color offColor = Color.black, onColor = Color.yellow;
 
-    float TIMER_DURATION = 0.2f;
-    float timer = 0, inferenceTimer = 0, goalTimer = 0;
+    float TIMER_DURATION = 0.2f, GOAL_TIMER_DURATION = 0.5f;
+    float timer = 5, inferenceTimer = 0, goalTimer = 0;
     string lastHorizontalRelativePositionInput = "", lastRadialInput = "", lastDistanceInput = "", lastHorizontalVelocityInput = "", lastVerticalVelocityInput = "", lastWallInput = "", lastDistanceVelocity = "", lastVerticalPositionInput = "";
     bool isHittingLeftWall, isHittingRightWall;
 
@@ -49,6 +49,7 @@ public class NARSSensorimotor : MonoBehaviour
         inferenceTimer -= Time.deltaTime;
         goalTimer -= Time.deltaTime;
 
+        
         if (timer <= 0f)
         {
             //Various test sensors
@@ -61,8 +62,11 @@ public class NARSSensorimotor : MonoBehaviour
 
             CalculateAndInputHorizontalRelativePositionSensorData();
             RemindGoal();
+            
+            
             timer = TIMER_DURATION;
         }
+
 
         if (inferenceTimer <= 0f)
         {
@@ -128,7 +132,7 @@ public class NARSSensorimotor : MonoBehaviour
     {
         if (position == "left")
         {
-            radialLeftSensor.material.color = oncolor;
+            radialLeftSensor.material.color = onColor;
             radialCenterLeftSensor.material.color = offColor;
             radialCenterSensor.material.color = offColor;
             radialCenterRightSensor.material.color = offColor;
@@ -138,7 +142,7 @@ public class NARSSensorimotor : MonoBehaviour
         {
             radialLeftSensor.material.color = offColor;
             radialCenterLeftSensor.material.color = offColor;
-            radialCenterSensor.material.color = oncolor;
+            radialCenterSensor.material.color = onColor;
             radialCenterRightSensor.material.color = offColor;
             radialRightSensor.material.color = offColor;
         }
@@ -148,12 +152,12 @@ public class NARSSensorimotor : MonoBehaviour
             radialCenterLeftSensor.material.color = offColor;
             radialCenterSensor.material.color = offColor;
             radialCenterRightSensor.material.color = offColor;
-            radialRightSensor.material.color = oncolor;
+            radialRightSensor.material.color = onColor;
         }
         else if (position == "center_left")
         {
             radialLeftSensor.material.color = offColor;
-            radialCenterLeftSensor.material.color = oncolor;
+            radialCenterLeftSensor.material.color = onColor;
             radialCenterSensor.material.color = offColor;
             radialCenterRightSensor.material.color = offColor;
             radialRightSensor.material.color = offColor;
@@ -163,7 +167,7 @@ public class NARSSensorimotor : MonoBehaviour
             radialLeftSensor.material.color = offColor;
             radialCenterLeftSensor.material.color = offColor;
             radialCenterSensor.material.color = offColor;
-            radialCenterRightSensor.material.color = oncolor;
+            radialCenterRightSensor.material.color = onColor;
             radialRightSensor.material.color = offColor;
         }
         else if (position == "off")
@@ -359,25 +363,20 @@ public class NARSSensorimotor : MonoBehaviour
 
         if (ballIsLeft)
         {
-            input = "<{ball_to_left} --> [on]>. :|:";
+            input = "<{ball} --> [left]>. :|:";
             SetSensor("left");
         }
         else if (ballIsRight)
         {
-            input = "<{ball_to_right} --> [on]>. :|:";
+            input = "<{ball} --> [right]>. :|:";
             SetSensor("right");
-        }
-        else if (ballIsCenter)
+        }else if (ballIsCenter)
         {
-            input = "<{ball_to_center} --> [on]>. :|:";
+            input = "<{ball} --> [center]>. :|:";
             SetSensor("center");
         }
-        else
-        {
-            SetSensor("off");
-        }
 
-        if (input != "")// && input != lastHorizontalRelativePositionInput)
+        if (input != "")//&& input != lastHorizontalRelativePositionInput)
         {
             GetNARSHost().AddInput(input);
             lastHorizontalRelativePositionInput = input;
@@ -388,20 +387,20 @@ public class NARSSensorimotor : MonoBehaviour
     {
         if(position == "left")
         {
-            leftSensor.material.color = oncolor;
+            leftSensor.material.color = onColor;
             centerSensor.material.color = offColor;
             rightSensor.material.color = offColor;
         }else if(position == "center")
         {
             leftSensor.material.color = offColor;
-            centerSensor.material.color = oncolor;
+            centerSensor.material.color = onColor;
             rightSensor.material.color = offColor;
         }
         else if(position == "right")
         {
             leftSensor.material.color = offColor;
             centerSensor.material.color = offColor;
-            rightSensor.material.color = oncolor;
+            rightSensor.material.color = onColor;
         }
         else if (position == "off")
         {
@@ -431,14 +430,19 @@ public class NARSSensorimotor : MonoBehaviour
 
     public void RemindGoal()
     {
-        //NARSHost.GetInstance().AddInput("(--,<{SELF} --> [bad]>)! :|:");
-        GetNARSHost().AddInput("<{SELF} --> [good]>! :|:");
+        string goal = "<{SELF} --> [good]>!";
+        if (GetNARSHost().type != NARSHost.NARSType.Python)
+        {
+            goal = goal + " :|:";
+        }
+
+        GetNARSHost().AddInput(goal);
     }
 
     public void Punish()
     {
         Debug.Log("BAD NARS");
-        //NARSHost.GetInstance().AddInput("(--,<{SELF} --> [good]>). :|:");
+        GetNARSHost().AddInput("<{SELF} --> [good]>. :|: %0.0;0.99%");
         //NARSHost.GetInstance().AddInput("(--,<{SELF} --> [good]>). :|:");
         //NARSHost.GetInstance().AddInput("<{SELF} --> [bad]>. :|:");
     }
@@ -446,6 +450,14 @@ public class NARSSensorimotor : MonoBehaviour
     public void Praise()
     {
         Debug.Log("GOOD " + GetNARSHost().type.ToString());
-        GetNARSHost().AddInput("<{SELF} --> [good]>. :|:");
+        if (GetNARSHost().type == NARSHost.NARSType.ONA || GetNARSHost().type == NARSHost.NARSType.NARS)
+        {
+            GetNARSHost().AddInput("<{SELF} --> [good]>. :|:");
+        }
+        else if (GetNARSHost().type == NARSHost.NARSType.Python) 
+        {
+            GetNARSHost().AddInput("<{SELF} --> [good]>. :|:");
+        }
+        
     }
 }

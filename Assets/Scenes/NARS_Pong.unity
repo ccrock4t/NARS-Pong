@@ -816,7 +816,7 @@ MonoBehaviour:
   radialCenterRightSensor: {fileID: 2009414867}
   radialRightSensor: {fileID: 1484379207}
   offColor: {r: 0, g: 0, b: 0, a: 1}
-  oncolor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  onColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &667741790
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,7 +1026,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 393, y: -93}
+  m_AnchoredPosition: {x: 367, y: -93}
   m_SizeDelta: {x: 552.3, y: 563.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &781468555
@@ -1131,6 +1131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c929045d54d31494a88aba89dd573cc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goalie: {fileID: 535148411}
 --- !u!65 &840549918
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2610,6 +2611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c929045d54d31494a88aba89dd573cc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goalie: {fileID: 0}
 --- !u!65 &1820652033
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3523,6 +3525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c929045d54d31494a88aba89dd573cc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goalie: {fileID: 0}
 --- !u!65 &2031556864
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3854,7 +3857,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 384, y: 99}
+  m_AnchoredPosition: {x: 358, y: 99}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2138866152

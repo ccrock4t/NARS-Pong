@@ -789,9 +789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0fb73769a38734995a51c28648108b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NARSPointsText: {fileID: 0}
   NARSBlocksText: {fileID: 1702558807}
-  ONAPointsText: {fileID: 0}
   ONABlocksText: {fileID: 903156248}
 --- !u!4 &380060097
 Transform:
@@ -2528,8 +2526,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba1e3faf31495a142bf31be6c2e5abf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isONA: 1
-  isNARS: 0
 --- !u!65 &1484211993
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3139,8 +3135,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba1e3faf31495a142bf31be6c2e5abf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isONA: 0
-  isNARS: 1
 --- !u!65 &1820652033
 BoxCollider:
   m_ObjectHideFlags: 0

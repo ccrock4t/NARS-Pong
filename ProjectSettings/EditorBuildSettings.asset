@@ -23,4 +23,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Player_Vs_ONA.unity
     guid: a011f4cd21b4cd8409aecdfc5ca46382
+  - enabled: 1
+    path: Assets/Scenes/Python_Pong.unity
+    guid: 6a01ecb28c807ed44a557c389ec8977d
+  - enabled: 1
+    path: Assets/Scenes/ONA_Vs_Python.unity
+    guid: fb1a27c80fbcfd444a1e14c25696f9f4
+  - enabled: 1
+    path: Assets/Scenes/NARS_Vs_Python.unity
+    guid: 15d0785f78c91784388c998655d7e259
+  - enabled: 1
+    path: Assets/Scenes/Player_Vs_Python.unity
+    guid: 60855cdf5637e4840a2e349a3b4aa2da
   m_configObjects: {}

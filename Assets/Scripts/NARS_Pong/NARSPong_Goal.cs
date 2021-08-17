@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NARSPong_Goal : MonoBehaviour
 {
+    public NARSSensorimotor goalie;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,6 +23,12 @@ public class NARSPong_Goal : MonoBehaviour
         if(other.tag == PongBall.TAG)
         {
             NARSPong_GameManager.GetInstance().AddMiss();
+
+            if(goalie != null)
+            {
+                goalie.Punish();
+            }
+
             other.GetComponent<PongBall>().ResetPosition();
         }
     }
