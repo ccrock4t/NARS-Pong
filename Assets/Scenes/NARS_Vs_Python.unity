@@ -789,8 +789,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb0fb73769a38734995a51c28648108b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NARSBlocksText: {fileID: 1702558807}
-  ONABlocksText: {fileID: 903156248}
+  NARS1BlocksText: {fileID: 1702558807}
+  NARS2BlocksText: {fileID: 903156248}
 --- !u!4 &380060097
 Transform:
   m_ObjectHideFlags: 0
@@ -814,9 +814,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 380060095}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 264184fda03976342af53d58dd4894d0, type: 3}
+  m_Script: {fileID: 11500000, guid: c31a26ffa1121a44185bf971ba7a313d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NARS1: {fileID: 535148409}
+  NARS2: {fileID: 460161481}
 --- !u!1 &442502977
 GameObject:
   m_ObjectHideFlags: 0

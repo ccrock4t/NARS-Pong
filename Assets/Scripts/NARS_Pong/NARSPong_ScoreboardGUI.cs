@@ -13,6 +13,7 @@ public class NARSPong_ScoreboardGUI : MonoBehaviour
 
     public void Start()
     {
+       // return; // comment this if you want Scoreboard stats
         if (File.Exists(resultspath))
             File.Delete(resultspath);
         writer = new StreamWriter(resultspath, true);
@@ -21,17 +22,17 @@ public class NARSPong_ScoreboardGUI : MonoBehaviour
     public void UpdateScoreboardMisses(int score)
     {
         missesText.text = "Misses: " + score;
-        writer.WriteLine("miss");
+        if(writer != null) writer.WriteLine("miss");
     }
 
     public void UpdateScoreboardBlocks(int score)
     {
         blocksText.text = "Blocks: " + score;
-        writer.WriteLine("block");
+        if (writer != null) writer.WriteLine("block");
     }
 
     public void OnDestroy()
     {
-        writer.Close();
+        if (writer != null) writer.Close();
     }
 }

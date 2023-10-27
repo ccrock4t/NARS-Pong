@@ -42,7 +42,7 @@ public class NARSHost : MonoBehaviour
                 break;
             case NARSType.Python:
                 LaunchPython();
-                babblesRemaining = 30;
+                babblesRemaining = 0;
                 break;
             default:
                 break;
@@ -50,6 +50,21 @@ public class NARSHost : MonoBehaviour
 
         _sensorimotor = GetComponent<NARSSensorimotor>();
         _sensorimotor.SetNARSHost(this);
+
+        NARSVsNARS_GameManager gm = NARSVsNARS_GameManager.GetInstance();
+        UnityEngine.Debug.Log(this.transform.localEulerAngles.y);
+        if (gm != null)
+        {
+            if((int)this.transform.localEulerAngles.y == 0)
+            {
+                gm.RegisterNARS1(this);
+            }
+            else
+            {
+                gm.RegisterNARS2(this);
+            }
+
+        }
     }
 
     public NARSSensorimotor GetSensorimotor()
@@ -115,7 +130,7 @@ public class NARSHost : MonoBehaviour
             lastOperationTextForUI = "(babble) ^right";
             operationUpdated = true;
 
-            input = "<(*,{SELF}) --> right>! :|:";
+            input = "<(*,{SELF}) --> right>. :|:";
         }
         else if (randInt == 2)
         {
@@ -354,7 +369,16 @@ public class NARSHost : MonoBehaviour
         UnityEngine.Debug.Log(eventArgs.Data);
         if (eventArgs.Data.Contains("EXE:")) //operation executed
         {
-            string operation = eventArgs.Data.Split(' ')[1];
+
+            string[] words = eventArgs.Data.Split(' ');
+            string operation = null;
+            foreach(string op in words)
+            {
+                if(op[0] == '^')
+                {
+                    operation = op;
+                }
+            }
             UnityEngine.Debug.Log("RECEIVED OPERATION: " + operation);
             if (operation == "^left")
             {
@@ -394,10 +418,7 @@ public class NARSHost : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        if (process != null || !process.HasExited )
-        {
-            process.CloseMainWindow();
-        }
+        process.CloseMainWindow();
     }
 
 }

@@ -39,11 +39,11 @@ public class PongBall : MonoBehaviour
     {
         int randInt = Random.Range(1, 3);
         int sign = randInt == 1 ? -1 : 1;
-        rb.AddForce(sign*new Vector3(0.4f, 0f, 0f), ForceMode.Impulse);
+        rb.AddForce(sign*new Vector3(Random.Range(0.3f, 0.7f), 0f, 0f), ForceMode.Impulse);
     }
 
     void NudgeZ()
-    {
+    {   
         int randInt = Random.Range(1, 3);
         int sign = randInt == 1 ? -1 : 1;
         rb.AddForce(2f*sign* new Vector3(0f, 0f, Random.Range(0.4f, 0.6f)), ForceMode.Impulse);
