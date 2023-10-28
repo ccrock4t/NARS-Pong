@@ -6,12 +6,19 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine.UI;
+using System;
 
 public class NARSHost : MonoBehaviour
 {
+
+    public static NARSType NARS1 = NARSType.OpenNARS;
+    public static NARSType NARS2 = NARSType.OpenNARS;
+
+
+
     public enum NARSType : int
     {
-        NARS, ONA, Python
+        OpenNARS, ONA, NARSPython, PyNARS
     }
 
     public NARSType type;
@@ -31,40 +38,29 @@ public class NARSHost : MonoBehaviour
     private void Start()
     {
         Application.targetFrameRate = 60;
-        babblesRemaining = 90;
+        babblesRemaining = 60;
         switch (type)
         {
-            case NARSType.NARS:
+            case NARSType.OpenNARS:
                 LaunchNARS();
                 break;
             case NARSType.ONA:
                 LaunchONA();
                 break;
-            case NARSType.Python:
+            case NARSType.NARSPython:
                 LaunchPython();
                 babblesRemaining = 0;
                 break;
             default:
-                break;
+                return;
         }
 
         _sensorimotor = GetComponent<NARSSensorimotor>();
         _sensorimotor.SetNARSHost(this);
 
-        NARSVsNARS_GameManager gm = NARSVsNARS_GameManager.GetInstance();
-        UnityEngine.Debug.Log(this.transform.localEulerAngles.y);
-        if (gm != null)
-        {
-            if((int)this.transform.localEulerAngles.y == 0)
-            {
-                gm.RegisterNARS1(this);
-            }
-            else
-            {
-                gm.RegisterNARS2(this);
-            }
-
-        }
+        string text = this.type.ToString() + " Operation:\n";
+        text += "NONE";
+        UIOutput.SetOutputText(text);
     }
 
     public NARSSensorimotor GetSensorimotor()
@@ -76,21 +72,7 @@ public class NARSHost : MonoBehaviour
     {
         if (operationUpdated)
         {
-            string text = "";
-            switch (type)
-            {
-                case NARSType.NARS:
-                    text = "NARS Operation:\n";
-                    break;
-                case NARSType.ONA:
-                    text = "ONA Operation:\n";
-                    break;
-                case NARSType.Python:
-                    text = "Python Operation:\n";
-                    break;
-                default:
-                    break;
-            }
+            string text = this.type.ToString() + " Operation:\n";
             text += lastOperationTextForUI;
             UIOutput.SetOutputText(text);
             operationUpdated = false;
@@ -102,10 +84,10 @@ public class NARSHost : MonoBehaviour
         {
             switch (type)
             {
-                case NARSType.NARS:
+                case NARSType.OpenNARS:
                     NARSBabble();
                     break;
-                case NARSType.Python:
+                case NARSType.NARSPython:
                     PythonBabble();
                     break;
                 default:
@@ -120,7 +102,7 @@ public class NARSHost : MonoBehaviour
 
     void PythonBabble()
     {
-        int randInt = Random.Range(1, 4);
+        int randInt = UnityEngine.Random.Range(1, 4);
         string input = "";
 
         if (randInt == 1)
@@ -159,7 +141,7 @@ public class NARSHost : MonoBehaviour
     }
     void NARSBabble()
     {
-        int randInt = Random.Range(1, 4); 
+        int randInt = UnityEngine.Random.Range(1, 4); 
         string input = "";
 
         if (randInt == 1)
@@ -196,10 +178,35 @@ public class NARSHost : MonoBehaviour
         }
     }
 
+    public void LaunchNARS()
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
+        startInfo.WorkingDirectory = Application.dataPath + "/NARS/OpenNARS";
+        startInfo.UseShellExecute = false;
+        startInfo.RedirectStandardInput = true;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
+
+        process = new Process();
+        process.StartInfo = startInfo;
+        process.EnableRaisingEvents = true;
+        process.OutputDataReceived += new DataReceivedEventHandler(NARSOutputReceived);
+        process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        process.StandardInput.WriteLine("java -Xmx1024m -jar opennars.jar");
+        process.StandardInput.Flush();
+
+        messageStream = process.StandardInput;
+        AddInput("*volume=0");
+    }
+
     public void LaunchONA()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
-        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
+        startInfo.WorkingDirectory = Application.dataPath + "/NARS/ONA";
         UnityEngine.Debug.Log(startInfo.WorkingDirectory);
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
@@ -222,35 +229,11 @@ public class NARSHost : MonoBehaviour
         AddInput("*volume=0");
     }
 
-    public void LaunchNARS()
-    {
-        ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
-        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
-        startInfo.UseShellExecute = false;
-        startInfo.RedirectStandardInput = true;
-        startInfo.RedirectStandardOutput = true;
-        startInfo.RedirectStandardError = true;
-
-        process = new Process();
-        process.StartInfo = startInfo;
-        process.EnableRaisingEvents = true;
-        process.OutputDataReceived += new DataReceivedEventHandler(NARSOutputReceived);
-        process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-
-        process.StandardInput.WriteLine("java -Xmx1024m -jar opennars.jar");
-        process.StandardInput.Flush();
-
-        messageStream = process.StandardInput;
-        AddInput("*volume=0");
-    }
 
     public void LaunchPython()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
-        startInfo.WorkingDirectory = Application.dataPath + @"\NARS";
+        startInfo.WorkingDirectory = Application.dataPath + "/NARS/NARS-Python";
         startInfo.UseShellExecute = false;
         startInfo.RedirectStandardInput = true;
         startInfo.RedirectStandardOutput = true;
@@ -271,6 +254,30 @@ public class NARSHost : MonoBehaviour
         process.StandardInput.Flush();
     }
 
+    public void LaunchPyNARS()
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
+        startInfo.WorkingDirectory = Application.dataPath + "/NARS/PyNARS";
+        startInfo.UseShellExecute = false;
+        startInfo.RedirectStandardInput = true;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.RedirectStandardError = true;
+
+        process = new Process();
+        process.StartInfo = startInfo;
+        process.EnableRaisingEvents = true;
+        process.OutputDataReceived += new DataReceivedEventHandler(PythonOutputReceived);
+        process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        messageStream = process.StandardInput;
+        process.StandardInput.WriteLine("Console.exe");
+
+        process.StandardInput.Flush();
+    }
+
     public void AddInferenceCycles(int cycles)
     {
         AddInput("" + cycles);
@@ -279,7 +286,7 @@ public class NARSHost : MonoBehaviour
     public void AddInput(string message)
     {
         
-        if(type == NARSType.Python)
+        if(type == NARSType.NARSPython)
         {
             int index = message.IndexOf("<");
             int lastindex = message.LastIndexOf(">");
@@ -419,6 +426,16 @@ public class NARSHost : MonoBehaviour
     void OnApplicationQuit()
     {
         process.CloseMainWindow();
+    }
+
+
+    public static void SetNARS1(string nars)
+    {
+        NARS1 = (NARSType)Enum.Parse(typeof(NARSType), nars, true);
+    }
+    public static void SetNARS2(string nars)
+    {
+        NARS2 = (NARSType)Enum.Parse(typeof(NARSType), nars, true);
     }
 
 }

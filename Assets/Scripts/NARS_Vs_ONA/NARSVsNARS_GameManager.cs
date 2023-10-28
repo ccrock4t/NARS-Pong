@@ -6,6 +6,9 @@ public class NARSVsNARS_GameManager : MonoBehaviour
 {
     private static NARSVsNARS_GameManager _instance;
     int NARS1Blocks = 0, NARS2Blocks = 0;
+
+    public GameObject NARS1GO, NARS2GO;
+    public OperationOutputGUI UIOutputNARS1, UIOutputNARS2;
     public NARSHost NARS1, NARS2;
 
     NARSVsNARS_GameManager()
@@ -13,21 +16,20 @@ public class NARSVsNARS_GameManager : MonoBehaviour
 
     }
 
-    public void RegisterNARS1(NARSHost host)
-    {
-        NARS1 = host;
-    }
-
-    public void RegisterNARS2(NARSHost host)
-    {
-        NARS2 = host;
-    }
 
 
 
     private void Start()
     {
         _instance = this;
+        NARS1 = NARS1GO.AddComponent<NARSHost>();
+        NARS1.type = NARSHost.NARS1;
+        NARS1.UIOutput = UIOutputNARS1;
+
+
+        NARS2 = NARS2GO.AddComponent<NARSHost>();
+        NARS2.type = NARSHost.NARS2;
+        NARS2.UIOutput = UIOutputNARS2;
     }
 
     public static NARSVsNARS_GameManager GetInstance()

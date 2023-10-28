@@ -1,61 +1,52 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
+
+    public TMP_Dropdown NARS1_Dropdown, NARS2_Dropdown;
+
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
+    void SetNARS()
+    {
+        string NARS1string = NARS1_Dropdown.options[NARS1_Dropdown.value].text;
+        string NARS2string = NARS2_Dropdown.options[NARS2_Dropdown.value].text;
+
+        NARSHost.SetNARS1(NARS1string);
+        NARSHost.SetNARS2(NARS2string);
+    }
+
+    void LoadNARSScene(string scene)
+    {
+        SetNARS();
+        SceneManager.LoadScene(scene);
+    }
+
     // Update is called once per frame
     public void LoadNARSPong()
     {
-        SceneManager.LoadScene("NARS_Pong");
+        LoadNARSScene("NARS_Pong");
     }
 
-    public void LoadONAPong()
-    {
-        SceneManager.LoadScene("ONA_Pong");
-    }
-
-    public void LoadPythonPong()
-    {
-        SceneManager.LoadScene("Python_Pong");
-    }
 
     public void LoadPlayerVsNARS()
     {
-        SceneManager.LoadScene("Player_Vs_NARS");
+        LoadNARSScene("Player_Vs_NARS");
     }
 
-    public void LoadPlayerVsONA()
+
+    public void LoadNARSVsNARS()
     {
-        SceneManager.LoadScene("Player_Vs_ONA");
+        LoadNARSScene("NARS_Vs_NARS");
     }
 
-
-    public void LoadPlayerVsPython()
-    {
-        SceneManager.LoadScene("Player_Vs_Python");
-    }
-
-
-    public void LoadNARSVsONA()
-    {
-        SceneManager.LoadScene("NARS_Vs_ONA");
-    }
-
-    public void LoadNARSVsPython()
-    {
-        SceneManager.LoadScene("NARS_Vs_Python");
-    }
-
-    public void LoadONAVsPython()
-    {
-        SceneManager.LoadScene("ONA_Vs_Python");
-    }
 }

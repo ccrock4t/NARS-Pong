@@ -8,10 +8,11 @@ public class NARSVsNARS_PongPaddle : NARSPong_PongPaddle
     {
         if (collision.collider.tag == PongBall.TAG)
         {
-            if (GetSensorimotor().GetNARSHost() == NARSVsNARS_GameManager.GetInstance().NARS1)
+            NARSHost NARS_host = GetSensorimotor().GetNARSHost();
+            if (NARS_host == NARSVsNARS_GameManager.GetInstance().NARS1)
             {
                 NARSVsNARS_GameManager.GetInstance().AddNARS1Block();
-            }else if (GetSensorimotor().GetNARSHost() == NARSVsNARS_GameManager.GetInstance().NARS2)
+            }else if (NARS_host == NARSVsNARS_GameManager.GetInstance().NARS2)
             {
                 NARSVsNARS_GameManager.GetInstance().AddNARS2Block();
             }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 public class NARSSensorimotor : MonoBehaviour
@@ -49,6 +50,11 @@ public class NARSSensorimotor : MonoBehaviour
     string global_sensor_string, previous_sensor_string;
     void Update()
     {
+        if (GetNARSHost() == null)
+        {
+            Debug.LogWarning("NARShost is null");
+            return;
+        }
         timer -= Time.deltaTime;
         inferenceTimer -= Time.deltaTime;
         goalTimer -= Time.deltaTime;

@@ -7,6 +7,8 @@ public class PlayerVs_GameManager : MonoBehaviour
     private static PlayerVs_GameManager _instance;
     int playerPoints = 0, NARSPoints = 0, NARSBlocks = 0;
 
+    public GameObject NARS;
+    public OperationOutputGUI UIOutput;
     PlayerVs_GameManager()
     {
 
@@ -15,6 +17,9 @@ public class PlayerVs_GameManager : MonoBehaviour
     private void Start()
     {
         _instance = this;
+        NARSHost host = NARS.AddComponent<NARSHost>();
+        host.type = NARSHost.NARS1;
+        host.UIOutput = UIOutput;
     }
 
     public static PlayerVs_GameManager GetInstance()
