@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine.UI;
 using System;
+using static UnityEngine.Networking.UnityWebRequest;
+using System.Text.RegularExpressions;
 
 public class NARSHost : MonoBehaviour
 {
@@ -49,6 +51,10 @@ public class NARSHost : MonoBehaviour
                 break;
             case NARSType.NARSPython:
                 LaunchPython();
+                babblesRemaining = 0;
+                break;
+            case NARSType.PyNARS:
+                LaunchPyNARS();
                 babblesRemaining = 0;
                 break;
             default:
@@ -266,7 +272,7 @@ public class NARSHost : MonoBehaviour
         process = new Process();
         process.StartInfo = startInfo;
         process.EnableRaisingEvents = true;
-        process.OutputDataReceived += new DataReceivedEventHandler(PythonOutputReceived);
+        process.OutputDataReceived += new DataReceivedEventHandler(PyNARSOutputReceived);
         process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
         process.Start();
         process.BeginOutputReadLine();
@@ -276,6 +282,8 @@ public class NARSHost : MonoBehaviour
         process.StandardInput.WriteLine("Console.exe");
 
         process.StandardInput.Flush();
+
+        if (File.Exists(pynars_log_filename)) File.Delete(pynars_log_filename); // delete old log
     }
 
     public void AddInferenceCycles(int cycles)
@@ -418,6 +426,67 @@ public class NARSHost : MonoBehaviour
 
     }
 
+    StreamWriter log_streamWriter;
+    string pynars_log_filename = "PyNARS_Log.txt";
+    void PyNARSOutputReceived(object sender, DataReceivedEventArgs eventArgs)
+    {
+        string ansi_escaped_text = Regex.Replace(eventArgs.Data, @"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "");
+
+
+
+        if(log_streamWriter == null)
+        {
+            log_streamWriter = new(pynars_log_filename);
+        }
+        log_streamWriter.WriteLine(ansi_escaped_text);
+
+
+
+        UnityEngine.Debug.Log(ansi_escaped_text);
+        if (eventArgs.Data.Contains("EXE:")) //operation executed
+        {
+
+            string[] words = eventArgs.Data.Split(' ');
+            string operation = null;
+            foreach (string op in words)
+            {
+                if (op[0] == '^')
+                {
+                    operation = op;
+                }
+            }
+            UnityEngine.Debug.Log("RECEIVED OPERATION: " + operation);
+            if (operation == "^left")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().MoveLeft();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+            else if (operation == "^right")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().MoveRight();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+            else if (operation == "^deactivate")
+            {
+                // UnityEngine.Debug.Log("RECEIVED OUTPUT: " + operation);
+
+                GetSensorimotor().DontMove();
+
+                lastOperationTextForUI = operation;
+                operationUpdated = true;
+            }
+        }
+
+    }
+
     void ErrorReceived(object sender, DataReceivedEventArgs eventArgs)
     {
         UnityEngine.Debug.LogError(eventArgs.Data);
@@ -425,6 +494,7 @@ public class NARSHost : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        log_streamWriter.Close();
         process.CloseMainWindow();
     }
 
