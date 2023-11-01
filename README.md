@@ -9,6 +9,10 @@ NARS Source Code (Java): https://github.com/opennars/opennars
 
 ONA Source Code (C): https://github.com/opennars/OpenNARS-for-Applications
 
-![Capture](https://user-images.githubusercontent.com/15344554/129799682-d5ac80f6-9b53-45d5-8027-a7e5303fbe55.PNG)
+NARS-Python Source Code (Python): https://github.com/ccrock4t/NARS-Python
+
+PyNARS Source Code (Python): https://github.com/bowen-xu/PyNARS
+
+![Capture](https://github.com/ccrock4t/NARS-Pong/assets/15344554/5f25f98a-845a-43cc-945d-8b864b84f7ca)
 ![gif](https://user-images.githubusercontent.com/15344554/95002425-d4067a80-05a1-11eb-9622-cf8ec649ad5a.gif)
 ![NARSvONA](https://user-images.githubusercontent.com/15344554/95002426-d49f1100-05a1-11eb-8e05-689ecf7b058a.gif)
